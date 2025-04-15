@@ -59,23 +59,28 @@ internal class SqlServerController
     {
         await using var connection = GetConnection();
         await connection.OpenAsync();
-
+        
         var sql = @"
             USE [FlashCards]
-            
-            IF OBJECT_ID(N'dbo.Cards', N'U') IS NULL
-            BEGIN
-                CREATE TABLE Cards (
-                    Id INT PRIMARY KEY IDENTITY (1, 1),
-                    Name VARCHAR(100)
-                )
-            END
 
             IF OBJECT_ID(N'dbo.Stacks', N'U') IS NULL
             BEGIN
                 CREATE TABLE Stacks (
-                    Id INT PRIMARY KEY IDENTITY (1, 1),
+                    ID INT PRIMARY KEY IDENTITY (1, 1),
                     Name VARCHAR(100)
+                )
+            END
+            
+            IF OBJECT_ID(N'dbo.Cards', N'U') IS NULL
+            BEGIN
+                CREATE TABLE Cards (
+                    ID INT PRIMARY KEY IDENTITY (1, 1),
+                    Front VARCHAR(255),
+                    Back VARCHAR(255),
+                    StackID INT NOT NULL,
+                    CONSTRAINT FK_Stacks_Cards FOREIGN KEY (StackID)
+                        REFERENCES Stacks (ID)
+                    ON DELETE CASCADE
                 )
             END
         ";
