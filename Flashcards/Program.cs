@@ -2,4 +2,4 @@
 
 var database = new SqlServerController();
 
-await database.RunExample();
+await database.Initialize();
