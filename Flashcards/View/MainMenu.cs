@@ -3,7 +3,7 @@ using Spectre.Console;
 
 namespace Flashcards.View;
 
-internal class MainMenu(SqlServerController database)
+internal class MainMenu(SqlServerController database) : AbstractMenu
 {
     private readonly StackMenu _stackMenu = new(database);
     

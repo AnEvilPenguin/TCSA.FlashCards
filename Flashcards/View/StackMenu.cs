@@ -1,10 +1,12 @@
 ﻿using Flashcards.Controllers;
+using Flashcards.Model;
 using Spectre.Console;
 
 namespace Flashcards.View;
 
-internal class StackMenu (SqlServerController database)
+internal class StackMenu (SqlServerController database) : AbstractMenu
 {
+    
     internal async Task CreateStack()
     {
         var name = string.Empty;
@@ -13,12 +15,9 @@ internal class StackMenu (SqlServerController database)
         {
             var proposed = AnsiConsole.Ask<string>("What is the name of the stack?");
 
-            if (proposed.Length > 100)
+            if (!Stack.IsValidName(proposed, out string errorMessage))
             {
-                AnsiConsole.WriteLine();
-                AnsiConsole.MarkupLine("[red]Error:[/] Must be less than 100 characters!");
-                AnsiConsole.WriteLine();
-                
+                WriteError(errorMessage);
                 continue;
             }
                 
