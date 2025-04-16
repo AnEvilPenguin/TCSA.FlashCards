@@ -39,6 +39,62 @@ internal class SqlServerController
         }
     }
 
+    internal async Task<bool> HasStacksAsync()
+    {
+        try
+        {
+            await using var connection = GetConnection();
+            await connection.OpenAsync();
+
+            var sql = @"
+                SELECT TOP (1) ID
+                FROM [FlashCards].[dbo].[Stacks];
+            ";
+
+            await using var command = new SqlCommand(sql, connection);
+            await using var reader = await command.ExecuteReaderAsync();
+            return reader.HasRows;
+        }
+        catch (SqlException e)
+        {
+            await Console.Error.WriteLineAsync($"SQL Error (HasStacksAsync): {e.Message} - Line: {e.Number}");
+        }
+        catch (Exception e)
+        {
+            await Console.Error.WriteLineAsync(e.ToString());
+        }
+        
+        return false;
+    }
+
+    internal async Task CreateStack(string name)
+    {
+        try
+        {
+            await using var connection = GetConnection();
+            await connection.OpenAsync();
+
+            var sql = @"
+                INSERT INTO [FlashCards].[dbo].[Stacks]
+                (Name)
+                VALUES (@name) 
+            ";
+
+            await using var command = new SqlCommand(sql, connection);
+            command.Parameters.AddWithValue("name", name);
+            
+            await command.ExecuteNonQueryAsync();
+        }
+        catch (SqlException e)
+        {
+            await Console.Error.WriteLineAsync($"SQL Error (CreateStack): {e.Message} - Line: {e.Number}");
+        }
+        catch (Exception e)
+        {
+            await Console.Error.WriteLineAsync(e.ToString());
+        }
+    }
+
     private async Task CreateDatabase()
     {
         await using var connection = GetConnection();
