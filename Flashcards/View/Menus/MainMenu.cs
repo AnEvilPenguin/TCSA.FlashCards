@@ -27,7 +27,7 @@ internal class MainMenu(SqlServerController database) : AbstractMenu
                 break;
             
             case "Study Session":
-                await _studySessionView.Run();
+                await _studySessionView.RunTest();
                 break;
             
             case "Exit":

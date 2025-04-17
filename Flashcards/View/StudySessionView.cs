@@ -6,7 +6,7 @@ namespace Flashcards.View;
 
 internal class StudySessionView(SqlServerController database)
 {
-    internal async Task Run()
+    internal async Task RunTest()
     {
         var validStacks = await database.ListStacksWithCardsAsync();
         
