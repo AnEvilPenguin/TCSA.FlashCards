@@ -14,6 +14,8 @@ internal class StackMenu (SqlServerController database) : AbstractMenu
 
     private readonly string[] _hasStackOptions = ["List Stacks", "Delete Stack"];
 
+    private bool _hasStack = false;
+
     internal async Task Run()
     {
         while (true)
@@ -61,11 +63,24 @@ internal class StackMenu (SqlServerController database) : AbstractMenu
 
     private async Task ManageMenuOptions()
     {
-        if (await database.HasStacksAsync())
+        var stacksExist = await database.HasStacksAsync(); 
+        
+        if (stacksExist && !_hasStack)
+        {
             for (var i = 0; i < _hasStackOptions.Length; i++) 
                 _menuOptions.Insert(i + 1, _hasStackOptions[i]);
-        else
-            foreach (var stackOption in _hasStackOptions)
-                _menuOptions.Remove(stackOption);
+            
+            _hasStack = true;
+            return;
+        }
+        
+        if (stacksExist)
+            return;
+
+        foreach (var stackOption in _hasStackOptions)
+            _menuOptions.Remove(stackOption);
+        
+        _hasStack = false;
+
     }
 }
