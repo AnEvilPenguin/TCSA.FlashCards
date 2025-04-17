@@ -19,7 +19,7 @@ internal class Stack
 
         if (name.Length > MaxNameLength)
         {
-            error = "Name must be less than 100 characters!";
+            error = $"Name must be less than [orange3]{MaxNameLength}[/] characters!";
             return false;
         }
         
