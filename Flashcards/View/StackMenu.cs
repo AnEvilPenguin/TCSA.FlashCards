@@ -13,8 +13,6 @@ internal class StackMenu (SqlServerController database) : AbstractMenu
     ];
 
     private readonly string[] _hasStackOptions = ["List Stacks", "Delete Stack"];
-    
-    private StackView _stackView = new StackView();
 
     private bool _hasStack = false;
 
@@ -31,7 +29,7 @@ internal class StackMenu (SqlServerController database) : AbstractMenu
                 break;
             
             case "List Stacks":
-                _stackView.ListStacks(await database.ListStacksAsync());
+                StackView.ListStacks(await database.ListStacksAsync());
                 break;
             
             case "Delete Stack":
@@ -101,7 +99,7 @@ internal class StackMenu (SqlServerController database) : AbstractMenu
             throw new Exception("No stacks to delete");
         }
         
-        var stack = _stackView.SelectStack(stacks, " to delete");
+        var stack = StackView.SelectStack(stacks, " to delete");
         
         if (!await AnsiConsole.ConfirmAsync($"Are you sure you want to delete [green]{stack.Name}[/]? This action [red]cannot be undone[/]."))
             return;

@@ -3,9 +3,9 @@ using Spectre.Console;
 
 namespace Flashcards.View;
 
-internal class StackView
+internal static class StackView
 {
-    internal void ListStacks(IEnumerable<Stack>? stacks)
+    internal static void ListStacks(IEnumerable<Stack>? stacks)
     {
         AnsiConsole.Clear();
         
@@ -22,14 +22,14 @@ internal class StackView
         WaitForContinue();
     }
 
-    internal Stack SelectStack(IEnumerable<Stack> stacks, string clarification) => 
+    internal static Stack SelectStack(IEnumerable<Stack> stacks, string clarification) => 
         AnsiConsole.Prompt(
             new SelectionPrompt<Stack>()
                 .Title($"Select a [green]stack[/]{clarification}:")
                 .UseConverter(b => b.Name)
                 .AddChoices(stacks));
 
-    private void WaitForContinue()
+    private static void WaitForContinue()
     {
         AnsiConsole.WriteLine();
         AnsiConsole.MarkupLine("Press any key to continue...");
