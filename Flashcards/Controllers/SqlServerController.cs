@@ -56,7 +56,7 @@ internal class SqlServerController
         }, "CreateStackAsync");
     }
 
-    internal async Task<IEnumerable<Stack>?> ListStacksAsync()
+    private async Task<IEnumerable<Stack>?> ListStacksAsync()
     {
         return await HandleError(async () =>
         {
@@ -123,6 +123,58 @@ internal class SqlServerController
             
             await command.ExecuteNonQueryAsync();
         }, "RenameStackAsync");
+    }
+    
+    internal async Task<bool> HasCardsAsync(Stack stack)
+    {
+        return await HandleError(async () =>
+        {
+            await using var connection = GetConnection();
+            await connection.OpenAsync();
+
+            const string sql = """
+                                   SELECT TOP (1) ID
+                                   FROM [FlashCards].[dbo].[Cards]
+                                   WHERE [StackID] = @StackId;
+                               """;
+
+            await using var command = new SqlCommand(sql, connection);
+            command.Parameters.AddWithValue("StackId", stack.Id);
+            
+            await using var reader = await command.ExecuteReaderAsync();
+            return reader.HasRows;
+        }, "HasStacksAsync");
+    }
+    
+    private async Task<IEnumerable<Card>?> ListCardsAsync(Stack stack)
+    {
+        return await HandleError(async () =>
+        {
+            await using var connection = GetConnection();
+            await connection.OpenAsync();
+
+            const string sql = """
+                                   SELECT * 
+                                   FROM [FlashCards].[dbo].[Cards]
+                                   WHERE [StackID] = @StackId;
+                               """;
+
+            var parameters = new { StackId = stack.Id };
+            
+            return await connection.QueryAsync<Card>(sql, parameters);
+        }, "ListCardsAsync");
+    }
+    
+    internal async Task<IEnumerable<Card>> GetCardsAsync(Stack stack)
+    {
+        var cards = await ListCardsAsync(stack);
+
+        if (cards == null)
+        {
+            throw new Exception("No stacks found");
+        }
+        
+        return cards;
     }
 
     internal async Task CreateCardAsync(Stack stack, Card card)

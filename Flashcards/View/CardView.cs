@@ -11,6 +11,23 @@ internal static class CardView
             Front = GetCardString("What should be on the [green]front[/] of the card?", "Front"),
             Back = GetCardString("What should be on the [green]back[/] of the card?", "Back"),
         };
+    
+    internal static void ListCards(IEnumerable<Card> cards)
+    {
+        AnsiConsole.Clear();
+        
+        var table = new Table();
+
+        table.AddColumn(new TableColumn("Front").Centered());
+        table.AddColumn(new TableColumn("Back").Centered());
+        
+        foreach (var card in cards)
+            table.AddRow(card.Front, card.Back);
+        
+        AnsiConsole.Write(table);
+
+        ViewHelpers.WaitForContinue();
+    }
 
     private static string GetCardString(string prompt, string type)
     {

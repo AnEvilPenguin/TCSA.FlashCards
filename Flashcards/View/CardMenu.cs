@@ -18,7 +18,7 @@ internal class CardMenu(SqlServerController database) : AbstractMenu
     
     protected override async Task<int> Run()
     {
-        ManageMenuOptions();
+        await ManageMenuOptions();
         
         if (_currentStack != null)
             AnsiConsole.MarkupLine($"Current stack: [green]{_currentStack.Name}[/]");
@@ -35,11 +35,28 @@ internal class CardMenu(SqlServerController database) : AbstractMenu
                 await CreateCard();
                 break;
             
+            case "List Cards":
+                if (_currentStack == null)
+                    throw new Exception("No stack selected");
+                CardView.ListCards(await database.GetCardsAsync(_currentStack));
+                break;
+            
             case "Back":
                 return 0;
         }
         
         return 1;
+    }
+    
+    protected override void Initialize()
+    {
+        _currentStack = null;
+
+        _menuOptions =
+        [
+            "Select Stack",
+            "Back"
+        ];
     }
 
     private async Task CreateCard()
@@ -59,23 +76,20 @@ internal class CardMenu(SqlServerController database) : AbstractMenu
         _currentStack = StackView.SelectStack(stacks, " to manage cards for");
     }
 
-    private void ManageMenuOptions()
+    private async Task ManageMenuOptions()
     {
         if (_currentStack == null)
             return;
 
         if (_menuOptions[1] != "Create Card")
             _menuOptions.Insert(1, "Create Card");
-    }
 
-    protected override void Initialize()
-    {
-        _currentStack = null;
-
-        _menuOptions =
-        [
-            "Select Stack",
-            "Back"
-        ];
+        if (_menuOptions.Count <= 3 && await database.HasCardsAsync(_currentStack))
+        {
+            for (var i = 0; i < _stackHasCardOptions.Length; i++)
+            {
+                _menuOptions.Insert(i + 2, _stackHasCardOptions[i]);
+            }
+        }
     }
 }
