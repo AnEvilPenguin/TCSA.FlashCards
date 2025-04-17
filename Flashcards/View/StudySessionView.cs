@@ -1,4 +1,5 @@
 ﻿using Flashcards.Controllers;
+using Flashcards.Model;
 using Spectre.Console;
 
 namespace Flashcards.View;
@@ -15,9 +16,65 @@ internal class StudySessionView(SqlServerController database)
         var selectedStack = StackView.SelectStack(validStacks, " to study from");
         
         var dto = await database.GetStackCardTransferObjectAsync(selectedStack);
+
+        var studySession = new StudySession()
+        {
+            Stack = selectedStack,
+            CardsCount = dto.Cards.Count,
+            Date = DateTime.UtcNow,
+        };
         
-        AnsiConsole.MarkupLine($"Selected: {dto.StackName}, Count: {dto.Cards.Count}");
+        for (int i = 0; i < studySession.CardsCount; i++)
+        {
+            AnsiConsole.Clear();
+                    
+            var rule = new Rule($"[green]{selectedStack.Name} - ({i + 1}/{studySession.CardsCount})[/]");
+            rule.Style = Style.Parse("red dim");
+            rule.Justification = Justify.Left;
+        
+            AnsiConsole.Write(rule);
+                    
+            var card = dto.Cards[i];
+            
+            TestCard(studySession, card);
+        }
+    }
+
+    private void TestCard(StudySession session, CardTransferObject card)
+    {
+        var frontPanel = ConfigureCardPanel("Front", card.Front);
+        var backPanel = ConfigureCardPanel("Back", card.Back);
+
+        AnsiConsole.Write(frontPanel);
+
+        var answer = AnsiConsole.Ask<string>("What is the answer?");
+        
+        AnsiConsole.Write(backPanel);
+
+        if (answer == card.Back)
+        {
+            session.Score++;
+            
+            AnsiConsole.MarkupLine("[green]Correct![/]");
+        }
+        else
+        {
+            AnsiConsole.MarkupLine("[red]Incorrect[/]");
+        }
         
         ViewHelpers.WaitForContinue();
+    }
+    
+    private Panel ConfigureCardPanel(string header, string content)
+    {
+        var panel = new Panel(content)
+            .Expand();
+
+        panel.Padding = new Padding(2);
+
+        panel.Header = new PanelHeader(header) { Justification = Justify.Center };
+        panel.Border = BoxBorder.Double;
+        
+        return panel;
     }
 }
