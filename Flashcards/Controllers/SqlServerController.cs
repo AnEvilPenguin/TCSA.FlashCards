@@ -192,7 +192,7 @@ internal class SqlServerController
 
             await using var command = new SqlCommand(sql, connection);
             command.Parameters.AddWithValue("Front", card.Front);
-            command.Parameters.AddWithValue("Back", card.Front);
+            command.Parameters.AddWithValue("Back", card.Back);
             command.Parameters.AddWithValue("StackId", stack.Id);
             
             await command.ExecuteNonQueryAsync();
