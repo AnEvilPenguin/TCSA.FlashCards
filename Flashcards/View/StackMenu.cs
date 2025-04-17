@@ -22,10 +22,7 @@ internal class StackMenu (SqlServerController database) : AbstractMenu
 
             await ManageMenuOptions();
             
-            var choice = AnsiConsole.Prompt(
-                new SelectionPrompt<string>()
-                    .Title("What would you like to do next?")
-                    .AddChoices(_menuOptions));
+            var choice = PromptForChoice(_menuOptions);
 
             switch (choice)
             {

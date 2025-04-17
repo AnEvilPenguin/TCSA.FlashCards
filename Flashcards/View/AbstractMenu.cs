@@ -10,4 +10,10 @@ internal abstract class AbstractMenu
         AnsiConsole.MarkupLine($"[red]Error:[/] {message}");
         AnsiConsole.WriteLine();
     }
+    
+    protected string PromptForChoice(IEnumerable<string> options) =>
+        AnsiConsole.Prompt(
+            new SelectionPrompt<string>()
+                .Title("What would you like to do next?")
+                .AddChoices(options));
 }
