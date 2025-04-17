@@ -36,6 +36,25 @@ internal class SqlServerController
         }, "HasStacksAsync");
     }
 
+    internal async Task<bool> HasStackWithCardsAsync()
+    {
+        return await HandleError(async () =>
+        {
+            await using var connection = GetConnection();
+            await connection.OpenAsync();
+
+            const string sql = """
+                                   SELECT TOP (1) Name
+                                   FROM [FlashCards].[dbo].[Stacks] AS "Stacks" 
+                                   JOIN [FlashCards].[dbo].[Cards] AS "Cards" ON [Stacks].[ID] = [Cards].StackID;
+                               """;
+
+            await using var command = new SqlCommand(sql, connection);
+            await using var reader = await command.ExecuteReaderAsync();
+            return reader.HasRows;
+        }, "HasStacksAsync");
+    }
+
     internal async Task CreateStackAsync(string name)
     {
         await HandleError(async () =>

@@ -8,8 +8,6 @@ internal class MainMenu(SqlServerController database) : AbstractMenu
     private readonly StackMenu _stackMenu = new(database);
     
     private readonly List<string> _menuOptions = ["Manage Stacks", "Exit"];
-    
-    private bool _hasStack;
 
     protected override async Task<int> Run()
     {
@@ -27,6 +25,9 @@ internal class MainMenu(SqlServerController database) : AbstractMenu
                 await _cardMenu.DisplayMenu();
                 break;
             
+            case "Study Session":
+                break;
+            
             case "Exit":
                 return 0;
         }
@@ -37,20 +38,32 @@ internal class MainMenu(SqlServerController database) : AbstractMenu
     private async Task ManageMenuOptions()
     {
         var stacksExist = await database.HasStacksAsync();
+        var menuContainsCards = _menuOptions.Contains("Manage Cards");
+        
+        if (!stacksExist && !menuContainsCards)
+            return;
+        
+        if (!stacksExist && menuContainsCards)
+        {
+            _menuOptions.Remove("Manage Cards");
+            return;
+        }
 
-        if (stacksExist && !_hasStack)
+        if (stacksExist && !menuContainsCards)
         {
             _menuOptions.Insert(1, "Manage Cards");
-            
-            _hasStack = true;
+        }
+        
+        var stackWithCardsExist = await database.HasStackWithCardsAsync();
+        var menuContainsStudy = _menuOptions.Contains("Study Session");
+
+        if (stackWithCardsExist && !menuContainsStudy)
+        {
+            _menuOptions.Insert(2, "Study Session");
             return;
         }
         
-        if (!stacksExist && _hasStack)
-        {
-            _menuOptions.Remove("Manage Cards");
-        
-            _hasStack = false;
-        }
+        if (!stackWithCardsExist && _menuOptions.Contains("Study Session"))
+            _menuOptions.Remove("Study Session");
     }
 }
