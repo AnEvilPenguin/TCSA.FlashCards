@@ -4,9 +4,9 @@ using Spectre.Console;
 
 namespace Flashcards.View;
 
-internal class StudySessionView()
+internal static class StudySessionView
 {
-    internal StudySession RunTest(StackCardTransferObject dto)
+    internal static StudySession RunTest(StackCardTransferObject dto)
     {
         var studySession = new StudySession()
         {
@@ -18,10 +18,12 @@ internal class StudySessionView()
         {
             AnsiConsole.Clear();
                     
-            var rule = new Rule($"[green]{dto.StackName} - ({i + 1}/{studySession.CardsCount})[/]");
-            rule.Style = Style.Parse("red dim");
-            rule.Justification = Justify.Left;
-        
+            var rule = new Rule($"[green]{dto.StackName} - ({i + 1}/{studySession.CardsCount})[/]")
+            {
+                Style = Style.Parse("red dim"),
+                Justification = Justify.Left
+            };
+
             AnsiConsole.Write(rule);
                     
             var card = dto.Cards[i];
@@ -32,7 +34,7 @@ internal class StudySessionView()
         return studySession;
     }
 
-    internal void ViewSessions(IEnumerable<SessionTransferObject> sessions)
+    internal static void ViewSessions(IEnumerable<SessionTransferObject> sessions)
     {
         AnsiConsole.Clear();
         
@@ -59,7 +61,7 @@ internal class StudySessionView()
         ViewHelpers.WaitForContinue();
     }
     
-    private void TestCard(StudySession session, CardTransferObject card)
+    private static void TestCard(StudySession session, CardTransferObject card)
     {
         var frontPanel = ConfigureCardPanel("Front", card.Front);
         var backPanel = ConfigureCardPanel("Back", card.Back);
@@ -84,7 +86,7 @@ internal class StudySessionView()
         ViewHelpers.WaitForContinue();
     }
     
-    private Panel ConfigureCardPanel(string header, string content)
+    private static Panel ConfigureCardPanel(string header, string content)
     {
         var panel = new Panel(content)
             .Expand();

@@ -1,12 +1,9 @@
 ﻿using Flashcards.Controllers;
-using Flashcards.Model;
 
 namespace Flashcards.View.Menus;
 
 internal class SessionMenu (SqlServerController database) : AbstractMenu 
 {
-    private readonly StudySessionView _sessionView = new StudySessionView();
-    
     private readonly List<string> _menuOptions = 
     [
         "Study Stack",
@@ -47,7 +44,7 @@ internal class SessionMenu (SqlServerController database) : AbstractMenu
         
         var dto = await database.GetStackCardTransferObjectAsync(selectedStack);
 
-        var completedSession = _sessionView.RunTest(dto);
+        var completedSession = StudySessionView.RunTest(dto);
         
         await database.CreateSessionAsync(completedSession);
     }
@@ -71,6 +68,6 @@ internal class SessionMenu (SqlServerController database) : AbstractMenu
         if (sessionDto == null)
             throw new Exception("No valid session transfer");
         
-        _sessionView.ViewSessions(sessionDto);
+        StudySessionView.ViewSessions(sessionDto);
     }
 }
