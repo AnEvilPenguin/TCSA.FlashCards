@@ -92,6 +92,27 @@ internal class SqlServerController
         }, "DeleteStackAsync");
     }
 
+    internal async Task RenameStackAsync(Stack stack, string newName)
+    {
+        await HandleError(async () =>
+        {
+            await using var connection = GetConnection();
+            await connection.OpenAsync();
+
+            const string sql = """
+                                  UPDATE [FlashCards].[dbo].[Stacks]
+                                  SET [Name] = @newName
+                                  WHERE [ID] = @ID;
+                               """;
+
+            await using var command = new SqlCommand(sql, connection);
+            command.Parameters.AddWithValue("ID", stack.Id);
+            command.Parameters.AddWithValue("newName", newName);
+            
+            await command.ExecuteNonQueryAsync();
+        }, "RenameStackAsync");
+    }
+
     private async Task CreateDatabaseAsync()
     {
         await HandleError(async () =>

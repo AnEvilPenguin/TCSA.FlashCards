@@ -12,7 +12,7 @@ internal class StackMenu (SqlServerController database) : AbstractMenu
         "Back"
     ];
 
-    private readonly string[] _hasStackOptions = ["List Stacks", "Delete Stack"];
+    private readonly string[] _hasStackOptions = ["List Stacks", "Rename Stack", "Delete Stack"];
 
     private bool _hasStack = false;
 
@@ -29,7 +29,11 @@ internal class StackMenu (SqlServerController database) : AbstractMenu
                 break;
             
             case "List Stacks":
-                StackView.ListStacks(await database.ListStacksAsync());
+                StackView.ListStacks(await GetStacks());
+                break;
+            
+            case "Rename Stack":
+                await RenameStack();
                 break;
             
             case "Delete Stack":
@@ -45,21 +49,7 @@ internal class StackMenu (SqlServerController database) : AbstractMenu
     
     private async Task CreateStack()
     {
-        var name = string.Empty;
-
-        do
-        {
-            var proposed = AnsiConsole.Ask<string>("What is the name of the stack?");
-
-            if (!Stack.IsValidName(proposed, out string errorMessage))
-            {
-                WriteError(errorMessage);
-                continue;
-            }
-                
-            name = proposed;
-            
-        } while (string.IsNullOrWhiteSpace(name));
+        var name = StackView.GetStackName();
         
         AnsiConsole.Clear();
         
@@ -92,12 +82,7 @@ internal class StackMenu (SqlServerController database) : AbstractMenu
 
     private async Task DeleteStack()
     {
-        var stacks = await database.ListStacksAsync();
-
-        if (stacks == null)
-        {
-            throw new Exception("No stacks to delete");
-        }
+        var stacks = await GetStacks();
         
         var stack = StackView.SelectStack(stacks, " to delete");
         
@@ -105,5 +90,28 @@ internal class StackMenu (SqlServerController database) : AbstractMenu
             return;
         
         await database.DeleteStackAsync(stack);
+    }
+
+    private async Task RenameStack()
+    {
+        var stacks = await GetStacks();
+        
+        var stack = StackView.SelectStack(stacks, " to rename");
+        
+        var name = StackView.GetStackName();
+        
+        await database.RenameStackAsync(stack, name);
+    }
+
+    private async Task<IEnumerable<Stack>> GetStacks()
+    {
+        var stacks = await database.ListStacksAsync();
+
+        if (stacks == null)
+        {
+            throw new Exception("No stacks found");
+        }
+        
+        return stacks;
     }
 }

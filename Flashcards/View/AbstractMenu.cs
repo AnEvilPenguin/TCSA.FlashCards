@@ -4,12 +4,11 @@ namespace Flashcards.View;
 
 internal abstract class AbstractMenu
 {
-    protected void WriteError(string message)
-    {
-        AnsiConsole.WriteLine();
-        AnsiConsole.MarkupLine($"[red]Error:[/] {message}");
-        AnsiConsole.WriteLine();
-    }
+    protected void WriteError(string message) =>
+        ViewHelpers.WriteError(message);
+    
+    protected void WaitForContinue() =>
+        ViewHelpers.WaitForContinue();
     
     protected string PromptForChoice(IEnumerable<string> options) =>
         AnsiConsole.Prompt(
