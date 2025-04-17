@@ -16,4 +16,20 @@ internal abstract class AbstractMenu
             new SelectionPrompt<string>()
                 .Title("What would you like to do next?")
                 .AddChoices(options));
+
+    internal async Task<int> DisplayMenu()
+    {
+        int output = -1;
+
+        while (output != 0)
+        {
+            AnsiConsole.Clear();
+            
+            output = await Run();
+        }
+        
+        return output;
+    }
+
+    protected abstract Task<int> Run();
 }

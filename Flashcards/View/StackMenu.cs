@@ -18,30 +18,27 @@ internal class StackMenu (SqlServerController database) : AbstractMenu
 
     private bool _hasStack = false;
 
-    internal async Task Run()
+    protected override async Task<int> Run()
     {
-        while (true)
+        await ManageMenuOptions();
+        
+        var choice = PromptForChoice(_menuOptions);
+
+        switch (choice)
         {
-            AnsiConsole.Clear();
-
-            await ManageMenuOptions();
+            case "Create Stack":
+                await CreateStack();
+                break;
             
-            var choice = PromptForChoice(_menuOptions);
-
-            switch (choice)
-            {
-                case "Create Stack":
-                    await CreateStack();
-                    break;
-                
-                case "List Stacks":
-                    _stackView.ListStacks(await database.ListStacksAsync());
-                    break;
-                
-                case "Back":
-                    return;
-            }
+            case "List Stacks":
+                _stackView.ListStacks(await database.ListStacksAsync());
+                break;
+            
+            case "Back":
+                return 0;
         }
+        
+        return 1;
     }
     
     private async Task CreateStack()
