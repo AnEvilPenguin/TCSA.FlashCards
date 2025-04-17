@@ -85,6 +85,23 @@ internal class SqlServerController
         
         return new StackCardTransferObject() { StackName = stack.Name, Cards = transfers };
     }
+    
+    internal async Task<IEnumerable<Stack>?> ListStacksWithCardsAsync()
+    {
+        return await HandleError(async () =>
+        {
+            await using var connection = GetConnection();
+            await connection.OpenAsync();
+
+            const string sql = """
+                                   SELECT DISTINCT [Name], [Stacks].[ID]
+                                   FROM [FlashCards].[dbo].[Stacks] AS "Stacks"
+                                   JOIN [FlashCards].[dbo].[Cards] AS "Cards" ON [Stacks].[ID] = [Cards].StackID;
+                               """;
+            
+            return await connection.QueryAsync<Stack>(sql);
+        }, "ListStacksAsync");
+    }
 
     private async Task<IEnumerable<Stack>?> ListStacksAsync()
     {

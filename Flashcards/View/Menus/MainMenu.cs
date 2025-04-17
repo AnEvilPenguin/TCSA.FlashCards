@@ -6,6 +6,7 @@ internal class MainMenu(SqlServerController database) : AbstractMenu
 {
     private readonly CardMenu _cardMenu = new(database);
     private readonly StackMenu _stackMenu = new(database);
+    private readonly StudySessionView _studySessionView = new(database);
     
     private readonly List<string> _menuOptions = ["Manage Stacks", "Exit"];
 
@@ -26,6 +27,7 @@ internal class MainMenu(SqlServerController database) : AbstractMenu
                 break;
             
             case "Study Session":
+                await _studySessionView.Run();
                 break;
             
             case "Exit":
