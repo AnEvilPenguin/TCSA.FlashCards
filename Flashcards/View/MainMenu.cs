@@ -1,5 +1,4 @@
 ﻿using Flashcards.Controllers;
-using Spectre.Console;
 
 namespace Flashcards.View;
 
@@ -7,11 +6,13 @@ internal class MainMenu(SqlServerController database) : AbstractMenu
 {
     private readonly StackMenu _stackMenu = new(database);
 
-    private readonly string[] _menuOptions = ["Manage Stacks", "Exit"];
+    private readonly List<string> _menuOptions = ["Manage Stacks", "Exit"];
+    
+    private bool _hasStack;
 
     protected override async Task<int> Run()
     {
-        AnsiConsole.Clear();
+        await ManageMenuOptions();
 
         var choice = PromptForChoice(_menuOptions);
 
@@ -26,5 +27,27 @@ internal class MainMenu(SqlServerController database) : AbstractMenu
         }
 
         return 1;
+    }
+
+    private async Task ManageMenuOptions()
+    {
+        var stacksExist = await database.HasStacksAsync(); 
+        
+        switch (stacksExist)
+        {
+            case true when !_hasStack:
+            {
+                _menuOptions.Insert(1, "Manage Cards");
+            
+                _hasStack = true;
+                return;
+            }
+            case true:
+                return;
+        }
+
+        _menuOptions.Remove("Manage Cards");
+        
+        _hasStack = false;
     }
 }
