@@ -62,18 +62,10 @@ internal class StackMenu (SqlServerController database) : AbstractMenu
     private async Task ManageMenuOptions()
     {
         if (await database.HasStacksAsync())
-        {
-            for (int i = 0; i < _hasStackOptions.Length; i++)
-            {
+            for (var i = 0; i < _hasStackOptions.Length; i++) 
                 _menuOptions.Insert(i + 1, _hasStackOptions[i]);
-            }
-        }
         else
-        {
             foreach (var stackOption in _hasStackOptions)
-            {
                 _menuOptions.Remove(stackOption);
-            }
-        }
     }
 }
