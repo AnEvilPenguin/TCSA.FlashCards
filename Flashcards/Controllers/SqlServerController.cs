@@ -125,6 +125,28 @@ internal class SqlServerController
         }, "RenameStackAsync");
     }
 
+    internal async Task CreateCardAsync(Stack stack, Card card)
+    {
+        await HandleError(async () =>
+        {
+            await using var connection = GetConnection();
+            await connection.OpenAsync();
+
+            const string sql = """
+                                   INSERT INTO [FlashCards].[dbo].[Cards]
+                                   (Front, Back, StackID)
+                                   VALUES (@Front, @Back, @StackId);
+                               """;
+
+            await using var command = new SqlCommand(sql, connection);
+            command.Parameters.AddWithValue("Front", card.Front);
+            command.Parameters.AddWithValue("Back", card.Front);
+            command.Parameters.AddWithValue("StackId", stack.Id);
+            
+            await command.ExecuteNonQueryAsync();
+        }, "CreateCardAsync");
+    }
+
     private async Task CreateDatabaseAsync()
     {
         await HandleError(async () =>
