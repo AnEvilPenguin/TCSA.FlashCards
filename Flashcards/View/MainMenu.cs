@@ -6,34 +6,24 @@ namespace Flashcards.View;
 internal class MainMenu(SqlServerController database) : AbstractMenu
 {
     private readonly StackMenu _stackMenu = new(database);
+
+    private readonly string[] _menuOptions = ["Manage Stacks", "Exit"];
     
     internal async Task<int> Run()
     {
-        var optionList = new List<string> { "Exit", "Create Stack" };
-
-        var stacks = false;
-        
         while (true)
         {
             AnsiConsole.Clear();
 
-            if (!stacks && await database.HasStacksAsync())
-            {
-                optionList.Remove("Create Stack");
-                optionList.Add("Manage Stacks");
-                
-                stacks = true;
-            }
-
             var choice = AnsiConsole.Prompt(
                 new SelectionPrompt<string>()
                     .Title("What would you like to do next?")
-                    .AddChoices(optionList));
+                    .AddChoices(_menuOptions));
 
             switch (choice)
             {
-                case "Create Stack":
-                    await _stackMenu.CreateStack();
+                case "Manage Stacks":
+                    await _stackMenu.Run();
                     break;
                 
                 case "Exit":
