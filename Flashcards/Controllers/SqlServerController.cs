@@ -273,6 +273,25 @@ internal class SqlServerController
             await command.ExecuteNonQueryAsync();
         }, "DeleteCardAsync");
     }
+    
+    internal async Task<bool> HasSessionAsync()
+    {
+        return await HandleError(async () =>
+        {
+            await using var connection = GetConnection();
+            await connection.OpenAsync();
+
+            const string sql = """
+                                   SELECT TOP (1) ID
+                                   FROM [FlashCards].[dbo].[Sessions];
+                               """;
+
+            await using var command = new SqlCommand(sql, connection);
+            
+            await using var reader = await command.ExecuteReaderAsync();
+            return reader.HasRows;
+        }, "HasStacksAsync");
+    }
 
     internal async Task CreateSessionAsync(StudySession session)
     {
@@ -294,6 +313,28 @@ internal class SqlServerController
             
             await command.ExecuteNonQueryAsync();
         }, "CreateCardAsync");
+    }
+
+    internal async Task<IEnumerable<SessionTransferObject>?> ListSessionTransferAsync()
+    {
+        return await HandleError(async () =>
+        {
+            await using var connection = GetConnection();
+            await connection.OpenAsync();
+
+            const string sql = """
+                                   SELECT 
+                                       [Stacks].[Name] AS "Name",
+                                       [Sessions].[CardCount] AS "CardCount",
+                                       [Sessions].[Score] AS "Score",
+                                       [Sessions].[Date] As "Date"
+                                   FROM [FlashCards].[dbo].[Sessions] AS "Sessions"
+                                   JOIN [FlashCards].[dbo].[Stacks] AS "Stacks" 
+                                       ON [Sessions].[StackID] = [Stacks].[ID];
+                               """;
+            
+            return await connection.QueryAsync<SessionTransferObject>(sql);
+        }, "ListSessionTransferAsync");
     }
 
     private async Task CreateDatabaseAsync()

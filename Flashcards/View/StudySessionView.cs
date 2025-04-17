@@ -32,6 +32,33 @@ internal class StudySessionView()
         return studySession;
     }
 
+    internal void ViewSessions(IEnumerable<SessionTransferObject> sessions)
+    {
+        AnsiConsole.Clear();
+        
+        var table = new Table();
+        
+        table.AddColumn(new TableColumn("Date"));
+        table.AddColumn(new TableColumn("Stack"));
+        table.AddColumn(new TableColumn("Score"));
+        table.AddColumn(new TableColumn("Card Count"));
+        table.AddColumn(new TableColumn("Percentage"));
+
+        foreach (var session in sessions)
+        {
+            table.AddRow(
+                session.Date.ToString("R"),
+                session.Name,
+                session.Score.ToString(),
+                session.CardCount.ToString(),
+                $"{session.Score / (float)session.CardCount * 100 :0}%");
+        }
+        
+        AnsiConsole.Write(table);
+        
+        ViewHelpers.WaitForContinue();
+    }
+    
     private void TestCard(StudySession session, CardTransferObject card)
     {
         var frontPanel = ConfigureCardPanel("Front", card.Front);

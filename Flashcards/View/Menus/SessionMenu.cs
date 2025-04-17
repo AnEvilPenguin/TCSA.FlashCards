@@ -15,12 +15,18 @@ internal class SessionMenu (SqlServerController database) : AbstractMenu
 
     protected override async Task<int> Run()
     {
+        await ManageMenuOptions();
+        
         var choice = PromptForChoice(_menuOptions);
         
         switch (choice)
         {
             case "Study Stack":
                 await StudyStack();
+                break;
+            
+            case "View Sessions":
+                await ViewSessions();
                 break;
             
             case "Back":
@@ -44,5 +50,27 @@ internal class SessionMenu (SqlServerController database) : AbstractMenu
         var completedSession = _sessionView.RunTest(dto);
         
         await database.CreateSessionAsync(completedSession);
+    }
+
+    private async Task ManageMenuOptions()
+    {
+        var hasSession = await database.HasSessionAsync();
+        var containsView = _menuOptions.Contains("View Sessions");
+        
+        if (hasSession && !containsView)
+            _menuOptions.Insert(1, "View Sessions");
+        
+        if (!hasSession && containsView)
+            _menuOptions.Remove("View Sessions");
+    }
+
+    private async Task ViewSessions()
+    {
+        var sessionDto = await database.ListSessionTransferAsync();
+        
+        if (sessionDto == null)
+            throw new Exception("No valid session transfer");
+        
+        _sessionView.ViewSessions(sessionDto);
     }
 }
