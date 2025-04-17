@@ -37,6 +37,8 @@ internal class StudySessionView(SqlServerController database)
             
             TestCard(studySession, card);
         }
+        
+        await database.CreateSessionAsync(studySession);
     }
 
     private void TestCard(StudySession session, CardTransferObject card)

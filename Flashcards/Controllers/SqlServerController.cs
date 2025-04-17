@@ -269,6 +269,28 @@ internal class SqlServerController
         }, "DeleteCardAsync");
     }
 
+    internal async Task CreateSessionAsync(StudySession session)
+    {
+        await HandleError(async () =>
+        {
+            await using var connection = GetConnection();
+            await connection.OpenAsync();
+
+            const string sql = """
+                                   INSERT INTO [FlashCards].[dbo].[Sessions]
+                                   (CardCount, Score, StackID)
+                                   VALUES (@CardCount, @Score, @StackId);
+                               """;
+
+            await using var command = new SqlCommand(sql, connection);
+            command.Parameters.AddWithValue("CardCount", session.CardsCount);
+            command.Parameters.AddWithValue("Score", session.Score);
+            command.Parameters.AddWithValue("StackId", session.Stack.Id);
+            
+            await command.ExecuteNonQueryAsync();
+        }, "CreateCardAsync");
+    }
+
     private async Task CreateDatabaseAsync()
     {
         await HandleError(async () =>
@@ -325,7 +347,7 @@ internal class SqlServerController
                                            ID INT PRIMARY KEY IDENTITY (1, 1),
                                            Score INT NOT NULL,
                                            CardCount INT NOT NULL,
-                                           DATE DATETIME DEFAULT(GetUtcDate()),
+                                           Date DATETIME DEFAULT(GetUtcDate()),
                                            StackID INT NOT NULL,
                                            CONSTRAINT FK_Stacks_Sessions FOREIGN KEY (StackID)
                                                REFERENCES Stacks (ID)
