@@ -3,5 +3,6 @@
 internal class StackCardTransferObject
 {
     internal required string StackName { get; set; }
+    internal required int StackId { get; set; }
     internal required List<CardTransferObject> Cards { get; set; }
 }

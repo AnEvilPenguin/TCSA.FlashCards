@@ -79,11 +79,16 @@ internal class SqlServerController
     {
         var cards = await GetCardsAsync(stack);
             
-        var transfers = cards
+        var cardTransferObjects = cards
             .Select((Card card) => new CardTransferObject() { Front = card.Front, Back = card.Back})
             .ToList();
         
-        return new StackCardTransferObject() { StackName = stack.Name, Cards = transfers };
+        return new StackCardTransferObject()
+        {
+            StackName = stack.Name,
+            StackId = stack.Id,
+            Cards = cardTransferObjects
+        };
     }
     
     internal async Task<IEnumerable<Stack>?> ListStacksWithCardsAsync()
