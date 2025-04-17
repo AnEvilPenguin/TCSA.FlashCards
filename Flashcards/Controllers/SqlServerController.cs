@@ -198,6 +198,29 @@ internal class SqlServerController
             await command.ExecuteNonQueryAsync();
         }, "CreateCardAsync");
     }
+    
+    internal async Task DeleteCardAsync(Card card)
+    {
+        if (card.Id == null)
+            throw new Exception("Card id is null");
+        
+        await HandleError(async () =>
+        {
+            await using var connection = GetConnection();
+            await connection.OpenAsync();
+
+            const string sql = """
+                                  DELETE
+                                  FROM [FlashCards].[dbo].[Cards]
+                                  WHERE [ID] = @ID;
+                               """;
+
+            await using var command = new SqlCommand(sql, connection);
+            command.Parameters.AddWithValue("ID", card.Id);
+            
+            await command.ExecuteNonQueryAsync();
+        }, "DeleteCardAsync");
+    }
 
     private async Task CreateDatabaseAsync()
     {

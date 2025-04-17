@@ -86,7 +86,7 @@ internal class StackMenu (SqlServerController database) : AbstractMenu
         
         var stack = StackView.SelectStack(stacks, " to delete");
         
-        if (!await AnsiConsole.ConfirmAsync($"Are you sure you want to delete [green]{stack.Name}[/]? This action [red]cannot be undone[/]."))
+        if (!PromptDeleteConfirmation(stack.Name))
             return;
         
         await database.DeleteStackAsync(stack);

@@ -36,4 +36,7 @@ internal abstract class AbstractMenu
     
     protected virtual void Initialize()
     {}
+
+    protected bool PromptDeleteConfirmation(string name) =>
+        AnsiConsole.Confirm($"Are you sure you want to delete [green]{name}[/]? This action [red]cannot be undone[/].");
 }

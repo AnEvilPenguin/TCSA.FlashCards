@@ -4,6 +4,7 @@ internal class Card
 {
     private const int MaxStringLength = 255;
     
+    internal int? Id { get; set; }
     internal required string Front { get; set; }
     internal required string Back { get; set; }
 

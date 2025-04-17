@@ -41,6 +41,10 @@ internal class CardMenu(SqlServerController database) : AbstractMenu
                 CardView.ListCards(await database.GetCardsAsync(_currentStack));
                 break;
             
+            case "Delete Card":
+                await DeleteCard();
+                break;
+            
             case "Back":
                 return 0;
         }
@@ -84,12 +88,35 @@ internal class CardMenu(SqlServerController database) : AbstractMenu
         if (_menuOptions[1] != "Create Card")
             _menuOptions.Insert(1, "Create Card");
 
-        if (_menuOptions.Count <= 3 && await database.HasCardsAsync(_currentStack))
+        var hasCards = await database.HasCardsAsync(_currentStack);
+
+        if (hasCards && _menuOptions.Count <= 3)
         {
             for (var i = 0; i < _stackHasCardOptions.Length; i++)
             {
                 _menuOptions.Insert(i + 2, _stackHasCardOptions[i]);
             }
+            
+            return;
         }
+        
+        if (!hasCards && _menuOptions.Count > 3)
+        {
+            foreach (var option in _stackHasCardOptions)
+                _menuOptions.Remove(option);
+        }
+    }
+
+    private async Task DeleteCard()
+    {
+        if (_currentStack == null)
+            throw new Exception("No stack selected");
+                
+        var card = CardView.SelectCard(await database.GetCardsAsync(_currentStack), " to delete");
+
+        if (!PromptDeleteConfirmation(card.Front))
+            return;
+        
+        await database.DeleteCardAsync(card);
     }
 }

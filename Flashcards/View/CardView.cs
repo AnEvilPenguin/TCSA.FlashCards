@@ -28,6 +28,13 @@ internal static class CardView
 
         ViewHelpers.WaitForContinue();
     }
+    
+    internal static Card SelectCard(IEnumerable<Card> cards, string clarification) => 
+        AnsiConsole.Prompt(
+            new SelectionPrompt<Card>()
+                .Title($"Select a [green]card[/]{clarification}:")
+                .UseConverter(b => b.Front)
+                .AddChoices(cards));
 
     private static string GetCardString(string prompt, string type)
     {
