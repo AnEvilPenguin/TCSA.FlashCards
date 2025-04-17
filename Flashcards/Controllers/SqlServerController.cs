@@ -14,31 +14,8 @@ internal class SqlServerController
 
     internal async Task Initialize()
     {
-        try
-        {
-            await CreateDatabaseAsync();
-        }
-        catch (SqlException e)
-        {
-            await Console.Error.WriteLineAsync($"SQL Error (Database): {e.Message} - Line: {e.Number}");
-        }
-        catch (Exception e)
-        {
-            await Console.Error.WriteLineAsync(e.ToString());
-        }
-        
-        try
-        {
-            await CreateTablesAsync();
-        }
-        catch (SqlException e)
-        {
-            await Console.Error.WriteLineAsync($"SQL Error (Tables): {e.Message} - Line: {e.Number}");
-        }
-        catch (Exception e)
-        {
-            await Console.Error.WriteLineAsync(e.ToString());
-        }
+        await HandleError(CreateDatabaseAsync, "CreateDatabaseAsync");
+        await HandleError(CreateTablesAsync, "CreateTablesAsync");
     }
 
     internal async Task<bool> HasStacksAsync()
