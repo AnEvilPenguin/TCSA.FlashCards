@@ -290,7 +290,7 @@ internal class SqlServerController
             await using var command = new SqlCommand(sql, connection);
             command.Parameters.AddWithValue("CardCount", session.CardsCount);
             command.Parameters.AddWithValue("Score", session.Score);
-            command.Parameters.AddWithValue("StackId", session.Stack.Id);
+            command.Parameters.AddWithValue("StackId", session.StackId);
             
             await command.ExecuteNonQueryAsync();
         }, "CreateCardAsync");

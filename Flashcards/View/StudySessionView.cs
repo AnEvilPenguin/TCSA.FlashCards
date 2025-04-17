@@ -4,22 +4,13 @@ using Spectre.Console;
 
 namespace Flashcards.View;
 
-internal class StudySessionView(SqlServerController database)
+internal class StudySessionView()
 {
-    internal async Task RunTest()
+    internal async Task<StudySession> RunTest(StackCardTransferObject dto)
     {
-        var validStacks = await database.ListStacksWithCardsAsync();
-        
-        if (validStacks == null)
-            throw new Exception("No valid stacks found");
-        
-        var selectedStack = StackView.SelectStack(validStacks, " to study from");
-        
-        var dto = await database.GetStackCardTransferObjectAsync(selectedStack);
-
         var studySession = new StudySession()
         {
-            Stack = selectedStack,
+            StackId = dto.StackId,
             CardsCount = dto.Cards.Count,
         };
         
@@ -27,7 +18,7 @@ internal class StudySessionView(SqlServerController database)
         {
             AnsiConsole.Clear();
                     
-            var rule = new Rule($"[green]{selectedStack.Name} - ({i + 1}/{studySession.CardsCount})[/]");
+            var rule = new Rule($"[green]{dto.StackName} - ({i + 1}/{studySession.CardsCount})[/]");
             rule.Style = Style.Parse("red dim");
             rule.Justification = Justify.Left;
         
@@ -38,7 +29,7 @@ internal class StudySessionView(SqlServerController database)
             TestCard(studySession, card);
         }
         
-        await database.CreateSessionAsync(studySession);
+        return studySession;
     }
 
     private void TestCard(StudySession session, CardTransferObject card)
