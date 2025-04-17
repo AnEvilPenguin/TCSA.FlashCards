@@ -71,6 +71,18 @@ internal class SqlServerController
             return await connection.QueryAsync<Stack>(sql);
         }, "ListStacksAsync");
     }
+    
+    internal async Task<IEnumerable<Stack>> GetStacksAsync()
+    {
+        var stacks = await ListStacksAsync();
+
+        if (stacks == null)
+        {
+            throw new Exception("No stacks found");
+        }
+        
+        return stacks;
+    }
 
     internal async Task DeleteStackAsync(Stack stack)
     {

@@ -29,7 +29,7 @@ internal class StackMenu (SqlServerController database) : AbstractMenu
                 break;
             
             case "List Stacks":
-                StackView.ListStacks(await GetStacks());
+                StackView.ListStacks(await database.GetStacksAsync());
                 break;
             
             case "Rename Stack":
@@ -82,7 +82,7 @@ internal class StackMenu (SqlServerController database) : AbstractMenu
 
     private async Task DeleteStack()
     {
-        var stacks = await GetStacks();
+        var stacks = await database.GetStacksAsync();
         
         var stack = StackView.SelectStack(stacks, " to delete");
         
@@ -94,24 +94,12 @@ internal class StackMenu (SqlServerController database) : AbstractMenu
 
     private async Task RenameStack()
     {
-        var stacks = await GetStacks();
+        var stacks = await database.GetStacksAsync();
         
         var stack = StackView.SelectStack(stacks, " to rename");
         
         var name = StackView.GetStackName();
         
         await database.RenameStackAsync(stack, name);
-    }
-
-    private async Task<IEnumerable<Stack>> GetStacks()
-    {
-        var stacks = await database.ListStacksAsync();
-
-        if (stacks == null)
-        {
-            throw new Exception("No stacks found");
-        }
-        
-        return stacks;
     }
 }
