@@ -1,6 +1,6 @@
 ﻿using Flashcards.Controllers;
 
-namespace Flashcards.View;
+namespace Flashcards.View.Menus;
 
 internal class MainMenu(SqlServerController database) : AbstractMenu
 {

@@ -1,8 +1,7 @@
 ﻿using Flashcards.Controllers;
-using Flashcards.Model;
 using Spectre.Console;
 
-namespace Flashcards.View;
+namespace Flashcards.View.Menus;
 
 internal class StackMenu (SqlServerController database) : AbstractMenu
 {

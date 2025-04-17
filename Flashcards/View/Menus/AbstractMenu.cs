@@ -1,6 +1,6 @@
 ﻿using Spectre.Console;
 
-namespace Flashcards.View;
+namespace Flashcards.View.Menus;
 
 internal abstract class AbstractMenu
 {
