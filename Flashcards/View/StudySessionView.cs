@@ -49,7 +49,7 @@ internal static class StudySessionView
         foreach (var session in sessions)
         {
             table.AddRow(
-                session.Date.ToString("R"),
+                session.Date.ToLocalTime().ToString("g"),
                 session.Name,
                 session.Score.ToString(),
                 session.CardCount.ToString(),

@@ -14,6 +14,8 @@ internal class SqlServerController
 
     internal async Task Initialize()
     {
+        SqlMapper.AddTypeHandler(new DateTimeHandler());
+        
         await HandleError(CreateDatabaseAsync, "CreateDatabaseAsync");
         await HandleError(CreateTablesAsync, "CreateTablesAsync");
     }
