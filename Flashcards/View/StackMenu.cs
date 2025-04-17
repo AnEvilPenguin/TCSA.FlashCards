@@ -13,6 +13,8 @@ internal class StackMenu (SqlServerController database) : AbstractMenu
     ];
 
     private readonly string[] _hasStackOptions = ["List Stacks", "Delete Stack"];
+    
+    private StackView _stackView = new StackView();
 
     private bool _hasStack = false;
 
@@ -30,6 +32,10 @@ internal class StackMenu (SqlServerController database) : AbstractMenu
             {
                 case "Create Stack":
                     await CreateStack();
+                    break;
+                
+                case "List Stacks":
+                    _stackView.ListStacks(await database.ListStacksAsync());
                     break;
                 
                 case "Back":
