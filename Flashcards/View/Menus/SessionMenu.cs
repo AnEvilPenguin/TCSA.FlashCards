@@ -5,9 +5,9 @@ namespace Flashcards.View.Menus;
 
 internal class SessionMenu (SqlServerController database) : AbstractMenu 
 {
-    private StudySessionView _sessionView = new StudySessionView();
+    private readonly StudySessionView _sessionView = new StudySessionView();
     
-    private List<string> _menuOptions = 
+    private readonly List<string> _menuOptions = 
     [
         "Study Stack",
         "Back"
