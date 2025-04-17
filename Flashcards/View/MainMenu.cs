@@ -36,23 +36,21 @@ internal class MainMenu(SqlServerController database) : AbstractMenu
 
     private async Task ManageMenuOptions()
     {
-        var stacksExist = await database.HasStacksAsync(); 
-        
-        switch (stacksExist)
-        {
-            case true when !_hasStack:
-            {
-                _menuOptions.Insert(1, "Manage Cards");
-            
-                _hasStack = true;
-                return;
-            }
-            case true:
-                return;
-        }
+        var stacksExist = await database.HasStacksAsync();
 
-        _menuOptions.Remove("Manage Cards");
+        if (stacksExist && !_hasStack)
+        {
+            _menuOptions.Insert(1, "Manage Cards");
+            
+            _hasStack = true;
+            return;
+        }
         
-        _hasStack = false;
+        if (!stacksExist && _hasStack)
+        {
+            _menuOptions.Remove("Manage Cards");
+        
+            _hasStack = false;
+        }
     }
 }
