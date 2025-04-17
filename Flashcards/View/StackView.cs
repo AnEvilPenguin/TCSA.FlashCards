@@ -50,4 +50,34 @@ internal static class StackView
         
         return name;
     }
+
+    internal static void ViewStack(StackCardTransferObject transferObject)
+    {
+        AnsiConsole.Clear();
+        
+        var table = new Table();
+
+        var titleStyle = new Style()
+            .Decoration(Decoration.Bold)
+            .Decoration(Decoration.Underline);
+        
+        table.Title = new TableTitle(transferObject.StackName, titleStyle);
+        
+        table.AddColumn(new TableColumn("Id").Centered());
+        table.AddColumn(new TableColumn("Front").Centered());
+        table.AddColumn(new TableColumn("Back").Centered());
+
+        var cards = transferObject.Cards;
+
+        for (int i = 0; i < cards.Count; i++)
+        {
+            var card = cards[i];
+            
+            table.AddRow($"{i + 1}", card.Front, card.Back);
+        }
+        
+        AnsiConsole.Write(table);
+
+        ViewHelpers.WaitForContinue();
+    }
 }

@@ -12,7 +12,7 @@ internal class StackMenu (SqlServerController database) : AbstractMenu
         "Back"
     ];
 
-    private readonly string[] _hasStackOptions = ["List Stacks", "Rename Stack", "Delete Stack"];
+    private readonly string[] _hasStackOptions = ["List Stacks", "View Stack", "Rename Stack", "Delete Stack"];
 
     private bool _hasStack;
 
@@ -30,6 +30,10 @@ internal class StackMenu (SqlServerController database) : AbstractMenu
             
             case "List Stacks":
                 StackView.ListStacks(await database.GetStacksAsync());
+                break;
+            
+            case "View Stack":
+                await ViewStack();
                 break;
             
             case "Rename Stack":
@@ -101,5 +105,15 @@ internal class StackMenu (SqlServerController database) : AbstractMenu
         var name = StackView.GetStackName();
         
         await database.RenameStackAsync(stack, name);
+    }
+
+    private async Task ViewStack()
+    {
+        var stacks = await database.GetStacksAsync();
+        
+        var stack = StackView.SelectStack(stacks, " to view");
+        
+        var dto = await database.GetStackCardTransferObjectAsync(stack);
+        StackView.ViewStack(dto);
     }
 }

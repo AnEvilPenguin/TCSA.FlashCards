@@ -56,6 +56,17 @@ internal class SqlServerController
         }, "CreateStackAsync");
     }
 
+    internal async Task<StackCardTransferObject> GetStackCardTransferObjectAsync(Stack stack)
+    {
+        var cards = await GetCardsAsync(stack);
+            
+        var transfers = cards
+            .Select((Card card) => new CardTransferObject() { Front = card.Front, Back = card.Back})
+            .ToList();
+        
+        return new StackCardTransferObject() { StackName = stack.Name, Cards = transfers };
+    }
+
     private async Task<IEnumerable<Stack>?> ListStacksAsync()
     {
         return await HandleError(async () =>
