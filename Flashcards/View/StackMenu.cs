@@ -58,7 +58,7 @@ internal class StackMenu (SqlServerController database) : AbstractMenu
         
         AnsiConsole.Clear();
         
-        await database.CreateStack(name);
+        await database.CreateStackAsync(name);
     }
 
     private async Task ManageMenuOptions()

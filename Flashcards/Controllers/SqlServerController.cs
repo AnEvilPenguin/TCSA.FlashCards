@@ -14,7 +14,7 @@ internal class SqlServerController
     {
         try
         {
-            await CreateDatabase();
+            await CreateDatabaseAsync();
         }
         catch (SqlException e)
         {
@@ -27,7 +27,7 @@ internal class SqlServerController
         
         try
         {
-            await CreateTables();
+            await CreateTablesAsync();
         }
         catch (SqlException e)
         {
@@ -41,107 +41,131 @@ internal class SqlServerController
 
     internal async Task<bool> HasStacksAsync()
     {
-        try
+        return await HandleError(async () =>
         {
             await using var connection = GetConnection();
             await connection.OpenAsync();
 
-            var sql = @"
-                SELECT TOP (1) ID
-                FROM [FlashCards].[dbo].[Stacks];
-            ";
+            const string sql = """
+                                   SELECT TOP (1) ID
+                                   FROM [FlashCards].[dbo].[Stacks];
+                               """;
 
             await using var command = new SqlCommand(sql, connection);
             await using var reader = await command.ExecuteReaderAsync();
             return reader.HasRows;
-        }
-        catch (SqlException e)
-        {
-            await Console.Error.WriteLineAsync($"SQL Error (HasStacksAsync): {e.Message} - Line: {e.Number}");
-        }
-        catch (Exception e)
-        {
-            await Console.Error.WriteLineAsync(e.ToString());
-        }
-        
-        return false;
+        }, "HasStacksAsync");
     }
 
-    internal async Task CreateStack(string name)
+    internal async Task CreateStackAsync(string name)
     {
-        try
+        await HandleError(async () =>
         {
             await using var connection = GetConnection();
             await connection.OpenAsync();
 
-            var sql = @"
-                INSERT INTO [FlashCards].[dbo].[Stacks]
-                (Name)
-                VALUES (@name) 
-            ";
+            const string sql = """
+                                   INSERT INTO [FlashCards].[dbo].[Stacks]
+                                   (Name)
+                                   VALUES (@name)
+                                """;
 
             await using var command = new SqlCommand(sql, connection);
             command.Parameters.AddWithValue("name", name);
             
             await command.ExecuteNonQueryAsync();
+        }, "CreateStackAsync");
+    }
+
+    private async Task CreateDatabaseAsync()
+    {
+        await HandleError(async () =>
+        {
+            await using var connection = GetConnection();
+            await connection.OpenAsync();
+
+            const string sql = """
+                                   IF NOT EXISTS(SELECT * FROM sys.databases WHERE name = 'FlashCards')
+                                   BEGIN
+                                       CREATE DATABASE [FlashCards]
+                                   END
+                               """;
+
+            await using var command = new SqlCommand(sql, connection);
+            await command.ExecuteNonQueryAsync();
+        }, "CreateDatabaseAsync");
+    }
+
+    private async Task CreateTablesAsync()
+    {
+        await HandleError(async () =>
+        {
+            await using var connection = GetConnection();
+            await connection.OpenAsync();
+            
+            const string sql = """
+                                   USE [FlashCards]
+
+                                   IF OBJECT_ID(N'dbo.Stacks', N'U') IS NULL
+                                   BEGIN
+                                       CREATE TABLE Stacks (
+                                           ID INT PRIMARY KEY IDENTITY (1, 1),
+                                           Name VARCHAR(100)
+                                       )
+                                   END
+                                   
+                                   IF OBJECT_ID(N'dbo.Cards', N'U') IS NULL
+                                   BEGIN
+                                       CREATE TABLE Cards (
+                                           ID INT PRIMARY KEY IDENTITY (1, 1),
+                                           Front VARCHAR(255),
+                                           Back VARCHAR(255),
+                                           StackID INT NOT NULL,
+                                           CONSTRAINT FK_Stacks_Cards FOREIGN KEY (StackID)
+                                               REFERENCES Stacks (ID)
+                                           ON DELETE CASCADE
+                                       )
+                                   END
+                               """;
+                
+            await using var command = new SqlCommand(sql, connection);
+            await command.ExecuteNonQueryAsync();
+        }, "CreateTablesAsync");
+    }
+
+    private async Task<T?> HandleError<T>(Func<Task<T>> task, string command)
+    {
+        try
+        {
+            return await task();
         }
         catch (SqlException e)
         {
-            await Console.Error.WriteLineAsync($"SQL Error (CreateStack): {e.Message} - Line: {e.Number}");
+            await Console.Error.WriteLineAsync($"SQL Error ({command}): {e.Message} - Line: {e.Number}");
+            throw;
         }
         catch (Exception e)
         {
             await Console.Error.WriteLineAsync(e.ToString());
+            throw;
         }
     }
-
-    private async Task CreateDatabase()
+    
+    private async Task HandleError(Func<Task> task, string command)
     {
-        await using var connection = GetConnection();
-        await connection.OpenAsync();
-
-        var sql = @"
-            IF NOT EXISTS(SELECT * FROM sys.databases WHERE name = 'FlashCards')
-            BEGIN
-                CREATE DATABASE [FlashCards]
-            END
-        ";
-        
-        await using var command = new SqlCommand(sql, connection);
-        await command.ExecuteNonQueryAsync();
-    }
-
-    private async Task CreateTables()
-    {
-        await using var connection = GetConnection();
-        await connection.OpenAsync();
-        
-        var sql = @"
-            USE [FlashCards]
-
-            IF OBJECT_ID(N'dbo.Stacks', N'U') IS NULL
-            BEGIN
-                CREATE TABLE Stacks (
-                    ID INT PRIMARY KEY IDENTITY (1, 1),
-                    Name VARCHAR(100)
-                )
-            END
-            
-            IF OBJECT_ID(N'dbo.Cards', N'U') IS NULL
-            BEGIN
-                CREATE TABLE Cards (
-                    ID INT PRIMARY KEY IDENTITY (1, 1),
-                    Front VARCHAR(255),
-                    Back VARCHAR(255),
-                    StackID INT NOT NULL,
-                    CONSTRAINT FK_Stacks_Cards FOREIGN KEY (StackID)
-                        REFERENCES Stacks (ID)
-                    ON DELETE CASCADE
-                )
-            END
-        ";
-            
-        await using var command = new SqlCommand(sql, connection);
-        await command.ExecuteNonQueryAsync();
+        try
+        {
+            await task();
+        }
+        catch (SqlException e)
+        {
+            await Console.Error.WriteLineAsync($"SQL Error ({command}): {e.Message} - Line: {e.Number}");
+            throw;
+        }
+        catch (Exception e)
+        {
+            await Console.Error.WriteLineAsync(e.ToString());
+            throw;
+        }
     }
 }
