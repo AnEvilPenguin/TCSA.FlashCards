@@ -34,6 +34,10 @@ internal class StackMenu (SqlServerController database) : AbstractMenu
                 _stackView.ListStacks(await database.ListStacksAsync());
                 break;
             
+            case "Delete Stack":
+                await DeleteStack();
+                break;
+            
             case "Back":
                 return 0;
         }
@@ -86,6 +90,22 @@ internal class StackMenu (SqlServerController database) : AbstractMenu
             _menuOptions.Remove(stackOption);
         
         _hasStack = false;
+    }
 
+    private async Task DeleteStack()
+    {
+        var stacks = await database.ListStacksAsync();
+
+        if (stacks == null)
+        {
+            throw new Exception("No stacks to delete");
+        }
+        
+        var stack = _stackView.SelectStack(stacks, " to delete");
+        
+        if (!await AnsiConsole.ConfirmAsync($"Are you sure you want to delete [green]{stack.Name}[/]? This action [red]cannot be undone[/]."))
+            return;
+        
+        await database.DeleteStackAsync(stack);
     }
 }

@@ -46,7 +46,7 @@ internal class SqlServerController
             const string sql = """
                                    INSERT INTO [FlashCards].[dbo].[Stacks]
                                    (Name)
-                                   VALUES (@name)
+                                   VALUES (@name);
                                 """;
 
             await using var command = new SqlCommand(sql, connection);
@@ -70,6 +70,26 @@ internal class SqlServerController
             
             return await connection.QueryAsync<Stack>(sql);
         }, "ListStacksAsync");
+    }
+
+    internal async Task DeleteStackAsync(Stack stack)
+    {
+        await HandleError(async () =>
+        {
+            await using var connection = GetConnection();
+            await connection.OpenAsync();
+
+            const string sql = """
+                                  DELETE
+                                  FROM [FlashCards].[dbo].[Stacks]
+                                  WHERE [ID] = @ID;
+                               """;
+
+            await using var command = new SqlCommand(sql, connection);
+            command.Parameters.AddWithValue("ID", stack.Id);
+            
+            await command.ExecuteNonQueryAsync();
+        }, "DeleteStackAsync");
     }
 
     private async Task CreateDatabaseAsync()

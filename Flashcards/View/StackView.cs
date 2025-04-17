@@ -22,6 +22,13 @@ internal class StackView
         WaitForContinue();
     }
 
+    internal Stack SelectStack(IEnumerable<Stack> stacks, string clarification) => 
+        AnsiConsole.Prompt(
+            new SelectionPrompt<Stack>()
+                .Title($"Select a [green]stack[/]{clarification}:")
+                .UseConverter(b => b.Name)
+                .AddChoices(stacks));
+
     private void WaitForContinue()
     {
         AnsiConsole.WriteLine();
