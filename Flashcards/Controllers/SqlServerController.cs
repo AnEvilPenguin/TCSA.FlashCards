@@ -1,5 +1,7 @@
 ﻿using System.Configuration;
+using Flashcards.Model;
 using Microsoft.Data.SqlClient;
+using Dapper;
 
 namespace Flashcards.Controllers;
 
@@ -75,6 +77,22 @@ internal class SqlServerController
             
             await command.ExecuteNonQueryAsync();
         }, "CreateStackAsync");
+    }
+
+    internal async Task<IEnumerable<Stack>?> ListStacksAsync()
+    {
+        return await HandleError(async () =>
+        {
+            await using var connection = GetConnection();
+            await connection.OpenAsync();
+
+            const string sql = """
+                                   SELECT * 
+                                   FROM [FlashCards].[dbo].[Stacks];
+                               """;
+            
+            return await connection.QueryAsync<Stack>(sql);
+        }, "ListStacksAsync");
     }
 
     private async Task CreateDatabaseAsync()
