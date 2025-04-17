@@ -4,6 +4,22 @@ namespace Flashcards.View;
 
 internal abstract class AbstractMenu
 {
+    internal async Task<int> DisplayMenu()
+    {
+        Initialize();
+        
+        int output = -1;
+
+        while (output != 0)
+        {
+            AnsiConsole.Clear();
+            
+            output = await Run();
+        }
+        
+        return output;
+    }
+    
     protected void WriteError(string message) =>
         ViewHelpers.WriteError(message);
     
@@ -16,19 +32,8 @@ internal abstract class AbstractMenu
                 .Title("What would you like to do next?")
                 .AddChoices(options));
 
-    internal async Task<int> DisplayMenu()
-    {
-        int output = -1;
-
-        while (output != 0)
-        {
-            AnsiConsole.Clear();
-            
-            output = await Run();
-        }
-        
-        return output;
-    }
-
     protected abstract Task<int> Run();
+    
+    protected virtual void Initialize()
+    {}
 }
