@@ -42,13 +42,9 @@ internal class MainMenu(SqlServerController database) : AbstractMenu
         var stacksExist = await database.HasStacksAsync();
         var menuContainsCards = _menuOptions.Contains("Manage Cards");
         
-        if (!stacksExist && !menuContainsCards)
-            return;
-        
         if (!stacksExist && menuContainsCards)
         {
             _menuOptions.Remove("Manage Cards");
-            return;
         }
 
         if (stacksExist && !menuContainsCards)
@@ -62,7 +58,6 @@ internal class MainMenu(SqlServerController database) : AbstractMenu
         if (stackWithCardsExist && !menuContainsStudy)
         {
             _menuOptions.Insert(2, "Study Session");
-            return;
         }
         
         if (!stackWithCardsExist && _menuOptions.Contains("Study Session"))
