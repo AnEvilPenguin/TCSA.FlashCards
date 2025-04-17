@@ -14,7 +14,7 @@ internal class StackMenu (SqlServerController database) : AbstractMenu
 
     private readonly string[] _hasStackOptions = ["List Stacks", "Rename Stack", "Delete Stack"];
 
-    private bool _hasStack = false;
+    private bool _hasStack;
 
     protected override async Task<int> Run()
     {

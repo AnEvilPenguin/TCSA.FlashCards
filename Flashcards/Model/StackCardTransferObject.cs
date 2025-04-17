@@ -2,6 +2,6 @@
 
 internal class StackCardTransferObject
 {
-    string StackName { get; set; }
-    List<Card> Cards { get; set; }
+    internal required string StackName { get; set; }
+    internal required List<Card> Cards { get; set; }
 }

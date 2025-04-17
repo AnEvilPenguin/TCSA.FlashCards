@@ -1,7 +1,7 @@
 ﻿namespace Flashcards.Model;
 
-public class Card
+internal class Card
 {
-    string Front { get; set; }
-    string Back { get; set; }
+    internal required string Front { get; set; }
+    internal required string Back { get; set; }
 }
