@@ -318,6 +318,20 @@ internal class SqlServerController
                                            ON DELETE CASCADE
                                        )
                                    END
+                                   
+                                   IF OBJECT_ID(N'dbo.Sessions', N'U') IS NULL
+                                   BEGIN
+                                       CREATE TABLE Sessions (
+                                           ID INT PRIMARY KEY IDENTITY (1, 1),
+                                           Score INT NOT NULL,
+                                           CardCount INT NOT NULL,
+                                           DATE DATETIME DEFAULT(GetUtcDate()),
+                                           StackID INT NOT NULL,
+                                           CONSTRAINT FK_Stacks_Sessions FOREIGN KEY (StackID)
+                                               REFERENCES Stacks (ID)
+                                           ON DELETE CASCADE
+                                       )
+                                   END
                                """;
                 
             await using var command = new SqlCommand(sql, connection);

@@ -21,7 +21,6 @@ internal class StudySessionView(SqlServerController database)
         {
             Stack = selectedStack,
             CardsCount = dto.Cards.Count,
-            Date = DateTime.UtcNow,
         };
         
         for (int i = 0; i < studySession.CardsCount; i++)
