@@ -4,8 +4,9 @@ namespace Flashcards.View;
 
 internal class MainMenu(SqlServerController database) : AbstractMenu
 {
+    private readonly CardMenu _cardMenu = new(database);
     private readonly StackMenu _stackMenu = new(database);
-
+    
     private readonly List<string> _menuOptions = ["Manage Stacks", "Exit"];
     
     private bool _hasStack;
@@ -20,6 +21,10 @@ internal class MainMenu(SqlServerController database) : AbstractMenu
         {
             case "Manage Stacks":
                 await _stackMenu.DisplayMenu();
+                break;
+            
+            case "Manage Cards":
+                await _cardMenu.DisplayMenu();
                 break;
             
             case "Exit":
