@@ -6,7 +6,7 @@ namespace Flashcards.View;
 
 internal class StudySessionView()
 {
-    internal async Task<StudySession> RunTest(StackCardTransferObject dto)
+    internal StudySession RunTest(StackCardTransferObject dto)
     {
         var studySession = new StudySession()
         {

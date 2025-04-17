@@ -41,7 +41,7 @@ internal class SessionMenu (SqlServerController database) : AbstractMenu
         
         var dto = await database.GetStackCardTransferObjectAsync(selectedStack);
 
-        var completedSession = await _sessionView.RunTest(dto);
+        var completedSession = _sessionView.RunTest(dto);
         
         await database.CreateSessionAsync(completedSession);
     }
