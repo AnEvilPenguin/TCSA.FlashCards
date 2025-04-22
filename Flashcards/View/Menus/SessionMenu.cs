@@ -26,6 +26,10 @@ internal class SessionMenu (SqlServerController database) : AbstractMenu
                 await ViewSessions();
                 break;
             
+            case "View Average Report":
+                await AverageReport();
+                break;
+            
             case "Back":
                 return 0;
         }
@@ -53,12 +57,20 @@ internal class SessionMenu (SqlServerController database) : AbstractMenu
     {
         var hasSession = await database.HasSessionAsync();
         var containsView = _menuOptions.Contains("View Sessions");
-        
+
         if (hasSession && !containsView)
+        {
             _menuOptions.Insert(1, "View Sessions");
-        
+            _menuOptions.Insert(2, "View Average Report");
+        }
+
+
         if (!hasSession && containsView)
+        {
             _menuOptions.Remove("View Sessions");
+            _menuOptions.Remove("View Average Report");
+        }
+            
     }
 
     private async Task ViewSessions()
@@ -69,5 +81,16 @@ internal class SessionMenu (SqlServerController database) : AbstractMenu
             throw new Exception("No valid session transfer");
         
         StudySessionView.ViewSessions(sessionDto);
+    }
+    
+    private async Task AverageReport()
+    {
+        // TODO get date from user
+        var report = await database.GetSessionAverageMonthsByYearReport(2025);
+        
+        if (report == null)
+            throw new Exception("No valid session avg report");
+        
+        StudySessionView.AverageReport(report, 2025);
     }
 }

@@ -339,6 +339,42 @@ internal class SqlServerController
         }, "ListSessionTransferAsync");
     }
 
+    internal async Task<IEnumerable<SessionReport>?> GetSessionAverageMonthsByYearReport(int year = -1)
+    {
+        if (year == -1)
+            year = DateTime.UtcNow.Year;
+        
+        return await HandleError(async () =>
+        {
+            await using var connection = GetConnection();
+            await connection.OpenAsync();
+
+            const string sql = """
+                                   SELECT *
+                                   FROM (
+                                       SELECT [Name] AS [StackName],
+                                              (([Score] / CAST([CardCount] AS FLOAT)) * 100) AS [Percent],
+                                              DATENAME(month, [Date]) AS [Month]
+                                       FROM [FlashCards].[dbo].[Sessions]
+                                       JOIN [FlashCards].[dbo].[Stacks] 
+                                           ON [Sessions].[StackID] = [Stacks].[ID]
+                                       WHERE [Date] > @Start AND Date < @End
+                                   ) AS [M_Session]
+                                   PIVOT (
+                                       AVG([Percent]) FOR [Month] IN(
+                                           "January", "February", "March", "April", "May", "June", "July", 
+                                           "August", "September", "October", "November", "December"
+                                       )
+                                   ) dt;
+                               """;
+            
+            return await connection.QueryAsync<SessionReport>(sql, new {
+                Start = new DateTime(year, 1, 1),
+                End = new DateTime(year, 12, 31),
+            });
+        }, "GetSessionAverageMonthsByYearReport");
+    }
+
     private async Task CreateDatabaseAsync()
     {
         await HandleError(async () =>

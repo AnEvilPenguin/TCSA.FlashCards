@@ -60,6 +60,57 @@ internal static class StudySessionView
         
         ViewHelpers.WaitForContinue();
     }
+
+    internal static void AverageReport(IEnumerable<SessionReport> reports, int year)
+    {
+        AnsiConsole.Clear();
+        
+        var rule = new Rule($"[green]Average Scores - {year}[/]")
+        {
+            Style = Style.Parse("red dim"),
+            Justification = Justify.Center
+        };
+
+        AnsiConsole.Write(rule);
+        
+        var table = new Table();
+        
+        table.AddColumn(new TableColumn("Stack Name"));
+        table.AddColumn(new TableColumn("January"));
+        table.AddColumn(new TableColumn("February"));
+        table.AddColumn(new TableColumn("March"));
+        table.AddColumn(new TableColumn("April"));
+        table.AddColumn(new TableColumn("May"));
+        table.AddColumn(new TableColumn("June"));
+        table.AddColumn(new TableColumn("July"));
+        table.AddColumn(new TableColumn("August"));
+        table.AddColumn(new TableColumn("September"));
+        table.AddColumn(new TableColumn("October"));
+        table.AddColumn(new TableColumn("November"));
+        table.AddColumn(new TableColumn("December"));
+
+        foreach (var stack in reports)
+        {
+            table.AddRow(
+                stack.StackName,
+                GetAverageFromMonth(stack.January),
+                GetAverageFromMonth(stack.February),
+                GetAverageFromMonth(stack.March),
+                GetAverageFromMonth(stack.April),
+                GetAverageFromMonth(stack.May),
+                GetAverageFromMonth(stack.June),
+                GetAverageFromMonth(stack.July),
+                GetAverageFromMonth(stack.August),
+                GetAverageFromMonth(stack.September),
+                GetAverageFromMonth(stack.October),
+                GetAverageFromMonth(stack.November),
+                GetAverageFromMonth(stack.December));
+        }
+        
+        AnsiConsole.Write(table);
+        
+        ViewHelpers.WaitForContinue();
+    }
     
     private static void TestCard(StudySession session, CardTransferObject card)
     {
@@ -98,4 +149,7 @@ internal static class StudySessionView
         
         return panel;
     }
+
+    private static string GetAverageFromMonth(float? month) =>
+        month != null ? month + "%" : "";
 }
