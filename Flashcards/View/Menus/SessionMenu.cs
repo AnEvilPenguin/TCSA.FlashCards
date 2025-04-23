@@ -1,4 +1,5 @@
 ﻿using Flashcards.Controllers;
+using Spectre.Console;
 
 namespace Flashcards.View.Menus;
 
@@ -85,12 +86,25 @@ internal class SessionMenu (SqlServerController database) : AbstractMenu
     
     private async Task AverageReport()
     {
-        // TODO get date from user
-        var report = await database.GetSessionAverageMonthsByYearReport(2025);
+        var currentYear = DateTime.Now.Year;
+
+        var year = AnsiConsole.Prompt(
+            new TextPrompt<int>("What year would you like to report on?")
+                .Validate((n) =>
+                {
+                    if (n > currentYear)
+                        return ValidationResult.Error("Cannot report on the future");
+                    
+                    return n < 1990 
+                        ? ValidationResult.Error("Too early a year to report on") 
+                        : ValidationResult.Success();
+                }));
+        
+        var report = await database.GetSessionAverageMonthsByYearReport(year);
         
         if (report == null)
             throw new Exception("No valid session avg report");
         
-        StudySessionView.AverageReport(report, 2025);
+        StudySessionView.AverageReport(report, year);
     }
 }
