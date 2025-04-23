@@ -27,9 +27,9 @@ TODO
 
 ## Stretch Goals
 
-- [ ] Report system
-  - [ ] Number of sessions per month per stack
-  - [ ] Average score per month per stack
+- [X] Report system
+  - [X] Number of sessions per month per stack
+  - [X] Average score per month per stack
 - [ ] Sample data generation
 
 # Features
