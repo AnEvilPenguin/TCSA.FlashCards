@@ -31,6 +31,10 @@ internal class SessionMenu (SqlServerController database) : AbstractMenu
                 await AverageReport();
                 break;
             
+            case "View Session Report":
+                await SessionReport();
+                break;
+            
             case "Back":
                 return 0;
         }
@@ -63,6 +67,7 @@ internal class SessionMenu (SqlServerController database) : AbstractMenu
         {
             _menuOptions.Insert(1, "View Sessions");
             _menuOptions.Insert(2, "View Average Report");
+            _menuOptions.Insert(3, "View Session Report");
         }
 
 
@@ -70,6 +75,7 @@ internal class SessionMenu (SqlServerController database) : AbstractMenu
         {
             _menuOptions.Remove("View Sessions");
             _menuOptions.Remove("View Average Report");
+            _menuOptions.Remove("View Session Report");
         }
             
     }
@@ -86,9 +92,33 @@ internal class SessionMenu (SqlServerController database) : AbstractMenu
     
     private async Task AverageReport()
     {
-        var currentYear = DateTime.Now.Year;
+        var year = PromptForReportYear(); 
+        
+        var report = await database.GetSessionAverageMonthsByYearReport(year);
+        
+        if (report == null)
+            throw new Exception("No valid session avg report");
+        
+        StudySessionView.AverageReport(report, year);
+    }
 
-        var year = AnsiConsole.Prompt(
+    private async Task SessionReport()
+    {
+        var year = PromptForReportYear(); 
+        
+        var report = await database.GetSessionsPerMonthByYearReport(year);
+        
+        if (report == null)
+            throw new Exception("No valid session per month report");
+        
+        StudySessionView.SessionReport(report, year);
+    }
+
+    private static int PromptForReportYear()
+    {
+        var currentYear = DateTime.Now.Year;
+        
+        return AnsiConsole.Prompt(
             new TextPrompt<int>("What year would you like to report on?")
                 .Validate((n) =>
                 {
@@ -99,12 +129,5 @@ internal class SessionMenu (SqlServerController database) : AbstractMenu
                         ? ValidationResult.Error("Too early a year to report on") 
                         : ValidationResult.Success();
                 }));
-        
-        var report = await database.GetSessionAverageMonthsByYearReport(year);
-        
-        if (report == null)
-            throw new Exception("No valid session avg report");
-        
-        StudySessionView.AverageReport(report, year);
     }
 }

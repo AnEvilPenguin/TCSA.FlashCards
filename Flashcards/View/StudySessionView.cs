@@ -73,21 +73,7 @@ internal static class StudySessionView
 
         AnsiConsole.Write(rule);
         
-        var table = new Table();
-        
-        table.AddColumn(new TableColumn("Stack Name"));
-        table.AddColumn(new TableColumn("January"));
-        table.AddColumn(new TableColumn("February"));
-        table.AddColumn(new TableColumn("March"));
-        table.AddColumn(new TableColumn("April"));
-        table.AddColumn(new TableColumn("May"));
-        table.AddColumn(new TableColumn("June"));
-        table.AddColumn(new TableColumn("July"));
-        table.AddColumn(new TableColumn("August"));
-        table.AddColumn(new TableColumn("September"));
-        table.AddColumn(new TableColumn("October"));
-        table.AddColumn(new TableColumn("November"));
-        table.AddColumn(new TableColumn("December"));
+        var table = GetMonthlyTable();
 
         foreach (var stack in reports)
         {
@@ -110,6 +96,64 @@ internal static class StudySessionView
         AnsiConsole.Write(table);
         
         ViewHelpers.WaitForContinue();
+    }
+    
+    internal static void SessionReport(IEnumerable<SessionReport> reports, int year)
+    {
+        AnsiConsole.Clear();
+        
+        var rule = new Rule($"[green]Session count - {year}[/]")
+        {
+            Style = Style.Parse("red dim"),
+            Justification = Justify.Center
+        };
+
+        AnsiConsole.Write(rule);
+
+        var table = GetMonthlyTable();
+
+        foreach (var stack in reports)
+        {
+            table.AddRow(
+                stack.StackName,
+                $"{stack.January}",
+                $"{stack.February}",
+                $"{stack.March}",
+                $"{stack.April}",
+                $"{stack.May}",
+                $"{stack.June}",
+                $"{stack.July}",
+                $"{stack.August}",
+                $"{stack.September}",
+                $"{stack.October}",
+                $"{stack.November}",
+                $"{stack.December}");
+        }
+        
+        AnsiConsole.Write(table);
+        
+        ViewHelpers.WaitForContinue();
+    }
+
+    private static Table GetMonthlyTable()
+    {
+        var table = new Table();
+        
+        table.AddColumn(new TableColumn("Stack Name"));
+        table.AddColumn(new TableColumn("January"));
+        table.AddColumn(new TableColumn("February"));
+        table.AddColumn(new TableColumn("March"));
+        table.AddColumn(new TableColumn("April"));
+        table.AddColumn(new TableColumn("May"));
+        table.AddColumn(new TableColumn("June"));
+        table.AddColumn(new TableColumn("July"));
+        table.AddColumn(new TableColumn("August"));
+        table.AddColumn(new TableColumn("September"));
+        table.AddColumn(new TableColumn("October"));
+        table.AddColumn(new TableColumn("November"));
+        table.AddColumn(new TableColumn("December"));
+        
+        return table;
     }
     
     private static void TestCard(StudySession session, CardTransferObject card)

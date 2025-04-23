@@ -374,6 +374,41 @@ internal class SqlServerController
             });
         }, "GetSessionAverageMonthsByYearReport");
     }
+    
+    internal async Task<IEnumerable<SessionReport>?> GetSessionsPerMonthByYearReport(int year = -1)
+    {
+        if (year == -1)
+            year = DateTime.UtcNow.Year;
+        
+        return await HandleError(async () =>
+        {
+            await using var connection = GetConnection();
+            await connection.OpenAsync();
+
+            const string sql = """
+                                   SELECT *
+                                   FROM (
+                                       SELECT [Name], [Name] AS [StackName],
+                                              DATENAME(month, [Date]) AS [Month]
+                                       FROM [FlashCards].[dbo].[Sessions]
+                                       JOIN [FlashCards].[dbo].[Stacks] 
+                                           ON [Sessions].[StackID] = [Stacks].[ID]
+                                       WHERE [Date] > @Start AND Date < @End
+                                   ) AS [M_Session]
+                                   PIVOT (
+                                       COUNT([Name]) FOR [Month] IN(
+                                           "January", "February", "March", "April", "May", "June", "July", 
+                                           "August", "September", "October", "November", "December"
+                                       )
+                                   ) dt;
+                               """;
+            
+            return await connection.QueryAsync<SessionReport>(sql, new {
+                Start = new DateTime(year, 1, 1),
+                End = new DateTime(year, 12, 31),
+            });
+        }, "GetSessionsPerMonthByYearReport");
+    }
 
     private async Task CreateDatabaseAsync()
     {
